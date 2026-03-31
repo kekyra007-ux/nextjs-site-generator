@@ -1,0 +1,62 @@
+import { useTranslation } from "next-i18next";
+import { useRouter } from "next/router";
+import Head from "next/head";
+import { getStaticPaths, makeStaticProps } from "{{getStaticPath}}";
+import { useEffect, useState } from "react";
+import SharedHero from "{{heroPath}}";
+import FeatureGrid from "../../components/Sections/FeatureGrid/FeatureGrid";
+import FaqBlock from "../../components/Sections/FaqBlock/FaqBlock";
+import CtaBlock from "../../components/Sections/CtaBlock/CtaBlock";
+import HomeArticle from "../../components/Sections/HomeArticle/HomeArticle";
+import OfferSection from "../../components/Sections/OfferSection/OfferSection";
+import PaymentMethods from "../../components/Sections/PaymentMethods/PaymentMethods";
+import HowToPlay from "../../components/Sections/HowToPlay/HowToPlay";
+import ItemsList from "../../components/Sections/ItemsList/ItemsList";
+import ContentShowcase from "../../components/Sections/ContentShowcase/ContentShowcase";
+import pageSpec from "../../config/pageSpec.json";
+
+const {{PageName}}Page = () => {
+  const { t } = useTranslation("common");
+  const router = useRouter();
+
+  const localeParam = router.query.locale;
+  const locale = typeof localeParam === "string" ? localeParam : "{{defaultLocale}}";
+
+  const seoTitle = t("seo.{{pageKey}}.title");
+  const seoDescription = t("seo.{{pageKey}}.description");
+  const seoKeywords = t("seo.{{pageKey}}.keywords");
+
+  return (
+    <>
+      <Head>
+        <title>{seoTitle}</title>
+        <meta name="description" content={seoDescription} />
+        <meta name="keywords" content={seoKeywords} />
+      </Head>
+
+      <main>
+        <SharedHero page="{{pageKey}}" />
+        
+        {(pageSpec["{{pageKey}}"] || []).map((sectionKey: string) => {
+          switch (sectionKey) {
+            case "homeArticle": return <HomeArticle key={sectionKey} page="{{pageKey}}" />;
+            case "featureGrid": return <FeatureGrid key={sectionKey} page="{{pageKey}}" />;
+            case "faqBlock": return <FaqBlock key={sectionKey} page="{{pageKey}}" />;
+            case "ctaBlock": return <CtaBlock key={sectionKey} page="{{pageKey}}" />;
+            case "offerSection": return <OfferSection key={sectionKey} page="{{pageKey}}" />;
+            case "paymentMethods": return <PaymentMethods key={sectionKey} page="{{pageKey}}" />;
+            case "howToPlay": return <HowToPlay key={sectionKey} page="{{pageKey}}" />;
+            case "itemsList": return <ItemsList key={sectionKey} page="{{pageKey}}" />;
+            case "contentShowcase": return <ContentShowcase key={sectionKey} page="{{pageKey}}" />;
+            default: return null;
+          }
+        })}
+      </main>
+    </>
+  );
+};
+
+const getStaticProps = makeStaticProps(["common"]);
+export { getStaticPaths, getStaticProps };
+
+export default {{PageName}}Page;

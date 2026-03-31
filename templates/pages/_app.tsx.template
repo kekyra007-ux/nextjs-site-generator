@@ -1,0 +1,34 @@
+// pages/_app.tsx
+import type { AppProps } from "next/app";
+import { appWithTranslation } from "next-i18next";
+import { ThemeProvider } from "styled-components";
+import { useState, useEffect } from "react";
+import GlobalStyle from "@/styles/GlobalStyle";
+import { Header } from "@/components/Header/Header";
+import { Footer } from "@/components/Footer/Footer";
+import { theme } from "@/styles/theme";
+
+import { useTranslation } from "next-i18next";
+
+function App({ Component, pageProps }: AppProps) {
+  const [mounted, setMounted] = useState(false);
+  const { t } = useTranslation("common");
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  if (!mounted) {
+    return null;
+  }
+
+  return (
+    <ThemeProvider theme={theme}>
+      <GlobalStyle />
+      <Header />
+      <Component {...pageProps} />
+      <Footer />
+    </ThemeProvider>
+  );
+}
+
+export default appWithTranslation(App);

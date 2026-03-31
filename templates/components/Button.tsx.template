@@ -1,0 +1,152 @@
+// src/components/UI/Button.tsx
+import styled, { css } from "styled-components";
+
+interface ButtonProps {
+  $variant?: "primary" | "secondary";
+  size?: "small" | "medium" | "large";
+  href?: string;
+  target?: string;
+  rel?: string;
+}
+
+const Button = styled.a<ButtonProps>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  border: 0;
+  border-radius: 12px;
+  cursor: pointer;
+
+  font-family: ${({ theme }) => theme.font.family.button};
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    opacity 160ms ease;
+
+  /* адекватный фокус для клавиатуры */
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 3px rgba(255, 255, 255, 0.35),
+      0 0 0 6px rgba(0, 0, 0, 0.25);
+  }
+
+  &:active {
+    transform: translateY(1px) scale(0.99);
+  }
+
+  ${({ size }) => {
+    switch (size) {
+      case "small":
+        return css`
+          padding: 0.55rem 0.9rem;
+          font-size: 0.75rem;
+          border-radius: 10px;
+        `;
+      case "large":
+        return css`
+          padding: 0.95rem 1.45rem;
+          font-size: 0.95rem;
+          border-radius: 14px;
+        `;
+      default:
+        return css`
+          padding: 0.75rem 1.15rem;
+          font-size: 0.84rem;
+          border-radius: 12px;
+        `;
+    }
+  }}
+
+  ${({ $variant, theme }) => {
+    switch ($variant) {
+      case "primary":
+        return css`
+          color: ${theme.colors.white};
+          background: ${theme.gradients.gradientPrimary || theme.colors.primary};
+          box-shadow:
+            0 14px 30px rgba(0, 0, 0, 0.22),
+            inset 0 1px 0 rgba(255, 255, 255, 0.22);
+
+          /* "выпуклость" текста на градиенте */
+          text-shadow: 0 1px 0 rgba(0, 0, 0, 0.22);
+
+          &:hover {
+            transform: translateY(-1px);
+            box-shadow:
+              0 18px 44px rgba(0, 0, 0, 0.28),
+              inset 0 1px 0 rgba(255, 255, 255, 0.26);
+            filter: saturate(1.08) contrast(1.02);
+          }
+
+          &:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+            filter: none;
+            box-shadow: none;
+          }
+        `;
+
+      case "secondary":
+        return css`
+          background: ${theme.colors.background};
+          color: ${theme.colors.primary};
+          border: 1px solid rgba(255, 255, 255, 0.26);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+
+          box-shadow:
+            0 10px 24px rgba(0, 0, 0, 0.14),
+            inset 0 1px 0 rgba(255, 255, 255, 0.14);
+
+          &:hover {
+            transform: translateY(-1px);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.32);
+          }
+
+          &:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+          }
+        `;
+
+      default:
+        return css`
+          color: ${theme.colors.white};
+          background: ${theme.gradients.gradientPrimary || theme.colors.primary};
+        `;
+    }
+  }}
+
+  /* ультра маленькие экраны: меньше буквы, больше читабельности */
+  @media (max-width: 360px) {
+    letter-spacing: 0.06em;
+    ${({ size }) =>
+      size === "large" &&
+      css`
+        padding: 0.85rem 1.15rem;
+        font-size: 0.9rem;
+      `}
+  }
+`;
+
+
+
+export default Button;

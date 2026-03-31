@@ -1,0 +1,324 @@
+// src/components/Sections/FeatureGrid/FeatureGrid.tsx
+import styled from "styled-components";
+import { useTranslation } from "next-i18next";
+
+interface FeatureGridProps {
+  page: string;
+  sectionKey?: string; // default: "featureGrid"
+}
+
+type FeatureItem = {
+  title: string;
+  text: string;
+};
+
+type FeatureGridData = {
+  title: string;
+  items: FeatureItem[];
+};
+
+const Section = styled.section`
+  position: relative;
+  padding: clamp(2.5rem, 5vw, 4.25rem) 1rem;
+  background: ${({ theme }) => theme.colors.background};
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -40px -40px auto -40px;
+    height: 360px;
+    background:
+      radial-gradient(
+        600px 260px at 20% 10%,
+        rgba(255, 255, 255, 0.10),
+        transparent 60%
+      ),
+      radial-gradient(
+        520px 240px at 85% 35%,
+        rgba(255, 255, 255, 0.07),
+        transparent 62%
+      );
+    pointer-events: none;
+    opacity: 0.8;
+    filter: blur(6px);
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+  }
+
+  /* ultra small: меньше воздуха и меньше декоративного шума */
+  @media (max-width: 360px) {
+    padding: 2.15rem 0.75rem;
+
+    &::before {
+      height: 260px;
+      opacity: 0.65;
+      filter: blur(5px);
+    }
+
+    &::after {
+      opacity: 0.03;
+    }
+  }
+
+  /* super tiny (старые Android/WebViews) */
+  @media (max-width: 320px) {
+    padding: 2rem 0.65rem;
+
+    &::before {
+      height: 220px;
+      opacity: 0.6;
+    }
+  }
+`;
+const Container = styled.div`
+  max-width: ${({ theme }) => theme.container.maxWidth};
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+
+  @media (max-width: 360px) {
+    padding-inline: 0.1rem;
+  }
+`;
+const Title = styled.h2`
+  margin: 0 0 1.25rem;
+  color: ${({ theme }) => theme.colors.text};
+  font-size: clamp(1.45rem, 3.7vw, ${({ theme }) => theme.font.size["2xl"]});
+  font-weight: ${({ theme }) => theme.font.weight.bold};
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.18);
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.10));
+
+  /* более “аккуратные” переносы */
+  text-wrap: balance;
+
+
+  @media (max-width: 360px) {
+    margin-bottom: 1rem;
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+    filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.09));
+  }
+
+  @media (max-width: 320px) {
+    font-size: 1.38rem;
+  }
+`;
+
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
+
+  ${({ theme }) => theme.mq.md} {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.1rem;
+  }
+
+  ${({ theme }) => theme.mq.lg} {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.15rem;
+  }
+
+  @media (max-width: 360px) {
+    gap: 0.85rem;
+  }
+
+  @media (max-width: 320px) {
+    gap: 0.75rem;
+  }
+`;
+
+const Card = styled.div`
+  position: relative;
+  border-radius: ${({ theme }) => theme.radii.xl};
+  padding: 1.15rem 1.15rem 1.1rem;
+
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.10),
+    rgba(255, 255, 255, 0.06)
+  );
+  border: 2px solid ${({ theme }) => theme.colors.border};
+
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+      420px 200px at 20% 0%,
+      rgba(255, 255, 255, 0.14),
+      transparent 55%
+    );
+    opacity: 0.9;
+    pointer-events: none;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    opacity: 0.55;
+    mix-blend-mode: overlay;
+  }
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 255, 255, 0.20);
+    box-shadow:
+      0 24px 60px rgba(0, 0, 0, 0.20),
+      inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.12),
+      rgba(255, 255, 255, 0.07)
+    );
+  }
+
+  /* touch: hover-подъёмы выглядят “дёргано”, убираем */
+  @media (hover: none) {
+    &:hover {
+      transform: none;
+    }
+  }
+
+  /* ultra small: меньше blur и паддинги */
+  @media (max-width: 360px) {
+    padding: 1rem;
+    border-radius: 16px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  @media (max-width: 320px) {
+    padding: 0.95rem;
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+  }
+`;
+
+const TitlePill = styled.div`
+  display: inline-flex;
+  align-items: center;
+
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  box-shadow:
+    0 10px 22px rgba(0, 0, 0, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+  max-width: 100%;
+
+  @media (max-width: 360px) {
+    padding: 0.42rem 0.62rem;
+  }
+
+  @media (max-width: 320px) {
+    padding: 0.4rem 0.58rem;
+  }
+`;
+
+const TitlePillText = styled.h3`
+  margin: 0;
+  color: ${({ theme }) => theme.colors.text};
+  font-size: clamp(1.0rem, 3.2vw, ${({ theme }) => theme.font.size.lg});
+  font-weight: ${({ theme }) => theme.font.weight.semibold};
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.14);
+  word-break: break-word;
+
+  @media (max-width: 360px) {
+    font-size: 1rem;
+      text-align: center;
+
+  }
+
+  @media (max-width: 320px) {
+    font-size: 0.98rem;
+    line-height: 1.18;
+  }
+`;
+
+const CardText = styled.p`
+  margin: 0;
+  color: ${({ theme }) => theme.colors.textMuted};
+  line-height: 1.65;
+  font-size: 0.98rem;
+
+  @media (max-width: 360px) {
+    font-size: 0.95rem;
+  }
+`;
+
+function isFeatureGridData(v: unknown): v is FeatureGridData {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return false;
+  const obj = v as any;
+  return (
+    typeof obj.title === "string" &&
+    Array.isArray(obj.items) &&
+    obj.items.every(
+      (it: any) => it && typeof it.title === "string" && typeof it.text === "string"
+    )
+  );
+}
+
+const FeatureGrid = ({ page, sectionKey = "featureGrid" }: FeatureGridProps) => {
+  const { t } = useTranslation("common");
+
+  const raw = t(`sections.${sectionKey}.${page}`, { returnObjects: true });
+  if (!isFeatureGridData(raw)) return null;
+
+  return (
+    <Section>
+      <Container>
+        <Title>{raw.title}</Title>
+        <Grid>
+          {raw.items.map((it, idx) => (
+            <Card key={idx}>
+<TitlePill>
+  <TitlePillText>{it.title}</TitlePillText>
+</TitlePill>              <CardText>{it.text}</CardText>
+            </Card>
+          ))}
+        </Grid>
+      </Container>
+    </Section>
+  );
+};
+
+export default FeatureGrid;

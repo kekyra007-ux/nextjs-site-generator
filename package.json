@@ -1,0 +1,24 @@
+{
+  "name": "nextjs-site-generator",
+  "version": "2.10.0",
+  "description": "CLI tool for generating multilingual Next.js static sites with OpenAI-powered content generation",
+  "main": "orchestrator.js",
+  "scripts": {
+    "start": "node orchestrator.js",
+    "generate": "node orchestrator.js",
+    "generate:ai": "CONTENT_MODE=ai node orchestrator.js"
+  },
+  "keywords": [
+    "nextjs",
+    "static-site-generator",
+    "i18n",
+    "openai",
+    "ssg",
+    "cli"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "openai": "^6.22.0"
+  }
+}

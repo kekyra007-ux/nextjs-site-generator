@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+
+# Generated output
+output/
+cache/
+
+# IDE / OS
+.DS_Store
+.claude/
+*.local
+
+# Logs
+*.log
+npm-debug.log*

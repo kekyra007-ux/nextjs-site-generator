@@ -1,0 +1,552 @@
+// src/components/Header/Header.tsx
+import { useEffect, useMemo, useState } from "react";
+import styled, { css } from "styled-components";
+import { useRouter } from "next/router";
+import Link from "../Link/Link";
+import Button from "../UI/Button";
+
+// ---------- helpers ----------
+const isHomeKey = (p: string) => p === "home" || p === "index";
+const normalize = (p: string) => (p.endsWith("/") ? p.slice(0, -1) : p);
+
+// гарантированно SOLID фон для хедера/дровера (не зависит от background-градиента страницы)
+const surfaceBg = (theme: any) =>
+  theme?.colors?.surface ||
+  theme?.colors?.panel ||
+  theme?.colors?.card ||
+  theme?.colors?.backgroundLight ||
+  "#0B0F1A";
+
+const borderClr = (theme: any) =>
+  theme?.colors?.border || "rgba(255,255,255,0.12)";
+
+interface ActiveProps {
+  $active?: boolean;
+}
+
+// ---------- styles ----------
+const HeaderShell = styled.header`
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+`;
+
+const HeaderBar = styled.div`
+  background-color: ${({ theme }) => surfaceBg(theme)};
+  border-bottom: 1px solid ${({ theme }) => borderClr(theme)};
+`;
+
+const Container = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+`;
+
+const Row = styled.div`
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+
+  @media (max-width: 360px) {
+    height: 64px;
+  }
+`;
+
+const Left = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  min-width: 0;
+`;
+
+const Right = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+`;
+
+const LogoA = styled.a`
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  cursor: pointer;
+  min-width: 0;
+
+  strong {
+    color: ${({ theme }) => theme.colors.primary};
+    font-size: 1.1rem;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 42vw;
+      filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.36))
+      drop-shadow(0 2px 0 rgba(0, 0, 0, 0.22))
+      drop-shadow(0 6px 14px rgba(0, 0, 0, 0.26))
+      drop-shadow(-1px -1px 0 rgba(255, 255, 255, 0.18))
+      drop-shadow(0 0 14px ${({ theme }) => theme.colors.primary}44)
+      brightness(1.16) contrast(1.28) saturate(1.22);
+  font-family: ${({ theme }) => theme.font.family.heading};
+
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-radius: 10px;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.22);
+  }
+`;
+
+// ---------- Desktop nav ----------
+const DesktopNav = styled.nav`
+  display: flex;
+  align-items: center;
+
+  @media (max-width: 900px) {
+    display: none;
+  }
+`;
+
+const NavList = styled.ul`
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+`;
+
+const NavA = styled.a<ActiveProps>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+    font-family: ${({ theme }) => theme.font.family.button};
+
+
+  padding: 0.55rem 0.8rem;
+  border-radius: 999px;
+  text-decoration: none;
+
+  font-size: 0.9rem;
+  font-weight: ${({ $active }) => ($active ? 800 : 650)};
+  letter-spacing: 0.01em;
+
+  color: ${({ theme, $active }) =>
+    $active ? theme.colors.primary : theme.colors.text};
+
+  background: ${({ $active }) =>
+    $active ? "rgba(255,255,255,0.14)" : "rgba(255,255,255,0.06)"};
+
+  border: 1px solid
+    ${({ $active }) =>
+      $active ? "rgba(255,255,255,0.20)" : "rgba(255,255,255,0.12)"};
+
+  transition:
+    transform 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.22);
+  }
+`;
+
+// ---------- Desktop lang ----------
+const DesktopLang = styled.div`
+  display: flex;
+  gap: 0.5rem;
+
+  @media (max-width: 900px) {
+    display: none;
+  }
+`;
+
+const BurgerIcon = ({ open }: { open: boolean }) => (
+  <svg
+    width="22"
+    height="22"
+    viewBox="0 0 24 24"
+    fill="none"
+    aria-hidden="true"
+  >
+    {open ? (
+      <>
+        <path
+          d="M6 6L18 18"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M18 6L6 18"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+      </>
+    ) : (
+      <>
+        <path
+          d="M4 7H20"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M4 12H20"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M4 17H20"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+      </>
+    )}
+  </svg>
+);
+
+// ---------- Mobile drawer ----------
+const Overlay = styled.div<{ $open: boolean }>`
+  display: ${({ $open }) => ($open ? "block" : "none")};
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(0, 0, 0, 0.45);
+
+  @media (min-width: 901px) {
+    display: none;
+  }
+`;
+
+const Drawer = styled.aside<{ $open: boolean }>`
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 2100;
+  height: 100%;
+  width: min(88vw, 380px);
+
+  transform: translateX(${({ $open }) => ($open ? "0" : "110%")});
+  transition: transform 200ms ease;
+
+  background-color: ${({ theme }) => surfaceBg(theme)}; /* SOLID */
+  border-left: 1px solid ${({ theme }) => borderClr(theme)};
+  box-shadow: -24px 0 70px rgba(0, 0, 0, 0.45);
+
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+
+  @media (min-width: 901px) {
+    display: none;
+  }
+`;
+
+const DrawerTop = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid ${({ theme }) => borderClr(theme)};
+`;
+
+const DrawerTitle = styled.div`
+  font-weight: 900;
+  color: ${({ theme }) => theme.colors.text};
+  letter-spacing: -0.01em;
+`;
+
+const DrawerLang = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.9rem;
+`;
+
+const DrawerNav = styled.nav`
+  margin-top: 0.9rem;
+  flex: 1;
+  overflow: hidden;
+`;
+
+const DrawerList = styled.ul`
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+
+  overflow-y: auto;
+  padding-right: 0.25rem;
+`;
+
+const DrawerA = styled.a<ActiveProps>`
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 16px;
+  padding: 0.9rem 1rem;
+
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+
+  color: ${({ theme }) => theme.colors.text};
+
+  background: ${({ $active }) =>
+    $active ? "rgba(255,255,255,0.14)" : "rgba(255,255,255,0.06)"};
+
+  border: 1px solid
+    ${({ $active }) =>
+      $active ? "rgba(255,255,255,0.20)" : "rgba(255,255,255,0.10)"};
+
+  transition:
+    transform 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.16);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.22);
+  }
+`;
+// ---------- Burger ----------
+const IconBtn = styled.button`
+  display: none;
+
+  @media (max-width: 900px) {
+    display: inline-flex;
+  }
+
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+  color: ${({ theme }) => theme.colors.text};
+
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+  line-height: 0;
+  text-align: center;
+
+  & > svg {
+    display: block;
+    margin: 0;
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  &:active {
+    transform: translateY(1px) scale(0.99);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.22);
+  }
+`;
+
+// ---------- config (вставки из генератора) ----------
+const PAGES: string[] = {{pagesArray}};
+const LOCALES: string[] = {{localesArray}};
+
+const PAGE_NAMES: Record<string, string> = {
+  index: "Home",
+  products: "Products",
+  services: "Services",
+  events: "Events",
+  app: "App",
+  offers: "Offers",
+  login: "Login",
+  register: "Register",
+};
+
+export const Header = () => {
+  const router = useRouter();
+  const locale = (router.query.locale as string) || "{{defaultLocale}}";
+  const [open, setOpen] = useState(false);
+
+  const navItems = useMemo(() => {
+    return PAGES.map((page) => {
+      const href = isHomeKey(page) ? "/" : `/${page}`;
+      const label = PAGE_NAMES[page] || (isHomeKey(page) ? "Home" : page);
+      return { href, label };
+    });
+  }, []);
+
+  const isActive = (href: string) => {
+    const currentPath = normalize(router.asPath);
+
+    if (href === "/") {
+      return (
+        currentPath === `/${locale}` ||
+        currentPath === `/${locale}/` ||
+        currentPath === ""
+      );
+    }
+
+    const target = normalize(`/${locale}${href}`);
+    return currentPath === target || currentPath.startsWith(`${target}/`);
+  };
+
+  useEffect(() => {
+    const handle = () => setOpen(false);
+    router.events.on("routeChangeComplete", handle);
+    return () => router.events.off("routeChangeComplete", handle);
+  }, [router.events]);
+
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
+  return (
+    <HeaderShell>
+      <HeaderBar>
+        <Container>
+          <Row>
+            <Left>
+              <Link href="/" passHref>
+                <LogoA>
+                  <strong>{{brandName}}</strong>
+                </LogoA>
+              </Link>
+
+              <DesktopNav aria-label="Primary navigation">
+                <NavList>
+                  {navItems.map((item) => (
+                    <li key={item.href}>
+                      <Link href={item.href} passHref>
+                        <NavA $active={isActive(item.href)}>{item.label}</NavA>
+                      </Link>
+                    </li>
+                  ))}
+                </NavList>
+              </DesktopNav>
+            </Left>
+
+            <Right>
+              <DesktopLang>
+                {LOCALES.map((loc) => (
+                  <Link key={loc} href="/" locale={loc}>
+                    <Button
+                      $variant={locale === loc ? "primary" : "secondary"}
+                      size="small"
+                    >
+                      {loc.toUpperCase()}
+                    </Button>
+                  </Link>
+                ))}
+              </DesktopLang>
+
+              <IconBtn
+                type="button"
+                aria-label={open ? "Close menu" : "Open menu"}
+                aria-expanded={open}
+                onClick={() => setOpen((v) => !v)}
+              >
+                <BurgerIcon open={open} />
+              </IconBtn>
+            </Right>
+          </Row>
+        </Container>
+      </HeaderBar>
+
+      <Overlay
+        $open={open}
+        onClick={() => setOpen(false)}
+        aria-hidden={!open}
+      />
+
+      <Drawer $open={open} aria-label="Mobile navigation">
+        <DrawerTop>
+          <DrawerTitle>Menu</DrawerTitle>
+          <IconBtn
+            type="button"
+            aria-label="Close menu"
+            onClick={() => setOpen(false)}
+          >
+            <BurgerIcon open />
+          </IconBtn>
+        </DrawerTop>
+
+        <DrawerLang>
+          {LOCALES.map((loc) => (
+            <Link key={loc} href="/" locale={loc}>
+              <Button
+                $variant={locale === loc ? "primary" : "secondary"}
+                size="small"
+              >
+                {loc.toUpperCase()}
+              </Button>
+            </Link>
+          ))}
+        </DrawerLang>
+
+        <DrawerNav>
+          <DrawerList>
+            {navItems.map((item) => (
+              <li key={item.href}>
+                <Link href={item.href} passHref>
+                  <DrawerA
+                    $active={isActive(item.href)}
+                    onClick={() => setOpen(false)}
+                  >
+                    {item.label}
+                  </DrawerA>
+                </Link>
+              </li>
+            ))}
+          </DrawerList>
+        </DrawerNav>
+      </Drawer>
+    </HeaderShell>
+  );
+};
+
+export default Header;

@@ -1,0 +1,103 @@
+{
+  "pages": [
+    {
+      "key": "home",
+      "slug": {
+        "en": "",
+        "tl": "",
+        "bn": "",
+        "vi": ""
+      },
+      "isIndex": true,
+      "description": "Main homepage"
+    },
+    {
+      "key": "products",
+      "slug": {
+        "en": "products",
+        "tl": "products",
+        "bn": "products",
+        "vi": "products"
+      },
+      "isIndex": false,
+      "description": "Products and services page"
+    },
+    {
+      "key": "services",
+      "slug": {
+        "en": "services",
+        "tl": "services",
+        "bn": "services",
+        "vi": "services"
+      },
+      "isIndex": false,
+      "description": "Our services page"
+    },
+    {
+      "key": "events",
+      "slug": {
+        "en": "events",
+        "tl": "events",
+        "bn": "events",
+        "vi": "events"
+      },
+      "isIndex": false,
+      "description": "Events and updates page"
+    },
+    {
+      "key": "login",
+      "slug": {
+        "en": "login",
+        "tl": "login",
+        "bn": "login",
+        "vi": "login"
+      },
+      "isIndex": false,
+      "description": "Login page"
+    },
+    {
+      "key": "register",
+      "slug": {
+        "en": "register",
+        "tl": "register",
+        "bn": "register",
+        "vi": "register"
+      },
+      "isIndex": false,
+      "description": "Registration page"
+    },
+    {
+      "key": "app",
+      "slug": {
+        "en": "app",
+        "tl": "app",
+        "bn": "app",
+        "vi": "app"
+      },
+      "isIndex": false,
+      "description": "Mobile app download page"
+    },
+    {
+      "key": "offers",
+      "slug": {
+        "en": "offers",
+        "tl": "offers",
+        "bn": "offers",
+        "vi": "offers"
+      },
+      "isIndex": false,
+      "description": "Special offers and promotions page"
+    },
+    {
+      "key": "link",
+      "slug": {
+        "en": "link",
+        "tl": "link",
+        "bn": "link",
+        "vi": "link"
+      },
+      "isIndex": false,
+      "description": "Alternative link page"
+    }
+  ]
+}

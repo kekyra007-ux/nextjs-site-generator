@@ -1,0 +1,116 @@
+{
+  "availableSections": [
+    {
+      "key": "homeArticle",
+      "name": "Home Article",
+      "description": "Main article/content block for homepage",
+      "applicablePages": [
+        "home",
+        "products",
+        "services",
+        "events",
+        "app",
+        "offers",
+        "link"
+      ]
+    },
+    {
+      "key": "featureGrid",
+      "name": "Feature Grid",
+      "description": "Grid of features/benefits",
+      "applicablePages": [
+        "home",
+        "products",
+        "services",
+        "events",
+        "app",
+        "offers",
+        "link",
+        "login",
+        "register"
+      ]
+    },
+    {
+      "key": "faqBlock",
+      "name": "FAQ Block",
+      "description": "Frequently Asked Questions section",
+      "applicablePages": [
+        "home",
+        "products",
+        "services",
+        "events",
+        "app",
+        "login",
+        "register"
+      ]
+    },
+    {
+      "key": "ctaBlock",
+      "name": "CTA Block",
+      "description": "Call to action section with button",
+      "applicablePages": [
+        "home",
+        "products",
+        "services",
+        "events",
+        "app",
+        "offers",
+        "link",
+        "login",
+        "register"
+      ]
+    },
+    {
+      "key": "offerSection",
+      "name": "Offer Section",
+      "description": "Special offers and promotions",
+      "applicablePages": ["home", "offers"]
+    },
+    {
+      "key": "paymentMethods",
+      "name": "Payment Methods",
+      "description": "Available payment options",
+      "applicablePages": ["home"]
+    },
+    {
+      "key": "itemsList",
+      "name": "Items List",
+      "description": "Informational product/service cards grid (decorative info cards)",
+      "applicablePages": ["home", "products", "services"]
+    },
+    {
+      "key": "howToPlay",
+      "name": "How To Play",
+      "description": "Step-by-step instructions with timeline layout",
+      "applicablePages": ["home", "products", "services"]
+    },
+    {
+      "key": "contentShowcase",
+      "name": "Content Showcase",
+      "description": "Rich structured article with highlights, content blocks and closing CTA",
+      "applicablePages": [
+        "home",
+        "products",
+        "services",
+        "events",
+        "app",
+        "offers",
+        "link",
+        "login",
+        "register"
+      ]
+    },
+    {
+      "key": "appFeatures",
+      "name": "App Features",
+      "description": "Mobile app features and benefits",
+      "applicablePages": ["app"]
+    },
+    {
+      "key": "downloadLinks",
+      "name": "Download Links",
+      "description": "App download buttons and QR codes",
+      "applicablePages": ["app"]
+    }
+  ]
+}

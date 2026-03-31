@@ -1,0 +1,383 @@
+// src/components/Sections/HowToPlay/HowToPlay.tsx
+import styled from "styled-components";
+import { useTranslation } from "next-i18next";
+import Button from "../../UI/Button";
+import siteSettings from "../../../config/siteSettings.json";
+
+interface HowToPlayProps {
+  page: string;
+  sectionKey?: string;
+}
+
+type StepItem = {
+  step: string;
+  title: string;
+  description: string;
+};
+
+type HowToPlayData = {
+  title: string;
+  subtitle: string;
+  steps: StepItem[];
+  buttonText: string;
+};
+
+/* ───────── layout ───────── */
+
+const Section = styled.section`
+  position: relative;
+  padding: clamp(2.75rem, 5vw, 4.25rem) 1rem;
+  background: ${({ theme }) => theme.colors.background};
+  overflow: hidden;
+
+  /* легкий атмосферный слой */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -60px -60px auto -60px;
+    height: 320px;
+    background:
+      radial-gradient(600px 240px at 15% 20%, rgba(255,255,255,0.10), transparent 60%),
+      radial-gradient(560px 260px at 85% 30%, rgba(255,255,255,0.07), transparent 62%);
+    pointer-events: none;
+    opacity: 0.9;
+    filter: blur(8px);
+  }
+`;
+
+const Container = styled.div`
+  max-width: ${({ theme }) => theme.container.maxWidth};
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+`;
+
+const Header = styled.div`
+  text-align: center;
+  margin-bottom: clamp(1.75rem, 3vw, 3rem);
+`;
+
+const Title = styled.h2`
+  margin: 0 0 0.75rem;
+  color: ${({ theme }) => theme.colors.text};
+  font-weight: ${({ theme }) => theme.font.weight.bold};
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+
+  font-size: clamp(1.4rem, 4.8vw, ${({ theme }) => theme.font.size["3xl"]});
+  text-shadow: 0 1px 0 rgba(0,0,0,0.16);
+`;
+
+const Subtitle = styled.p`
+  margin: 0 auto;
+  max-width: 42rem;
+  color: ${({ theme }) => theme.colors.textMuted};
+  line-height: 1.6;
+
+  font-size: clamp(0.95rem, 2.8vw, ${({ theme }) => theme.font.size.lg});
+  text-wrap: pretty;
+
+  @media (max-width: 360px) {
+    max-width: 36rem;
+  }
+`;
+/* ───────── timeline ───────── */
+
+const Timeline = styled.div`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  /* vertical line (mobile) */
+  &::before {
+    content: "";
+    position: absolute;
+    left: 1.05rem;
+    top: 0.25rem;
+    bottom: 0.25rem;
+    width: 2px;
+    background: ${({ theme }) => theme.colors.border};
+    opacity: 0.9;
+  }
+
+  ${({ theme }) => theme.mq.md} {
+    &::before {
+      left: 50%;
+      transform: translateX(-1px);
+      opacity: 0.75;
+    }
+  }
+
+  /* ультра маленькие: линия ближе и тоньше */
+  @media (max-width: 360px) {
+    &::before {
+      left: 0.9rem;
+      width: 1.5px;
+    }
+  }
+`;
+
+const StepRow = styled.div<{ $even: boolean }>`
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+
+  /* mobile layout */
+  padding-left: 3.1rem;
+  padding-bottom: 1.25rem;
+
+  ${({ theme }) => theme.mq.md} {
+    padding-left: 0;
+    padding-bottom: 2.1rem;
+    justify-content: ${({ $even }) => ($even ? "flex-start" : "flex-end")};
+  }
+
+  /* ультра маленькие: меньше отступы, чтобы ничего не “съедалось” */
+  @media (max-width: 360px) {
+    padding-left: 2.75rem;
+    padding-bottom: 1.05rem;
+  }
+
+  @media (max-width: 320px) {
+    padding-left: 2.55rem;
+  }
+`;
+
+const StepNumber = styled.div`
+  position: absolute;
+  left: 0;
+  top: 0.1rem;
+
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 999px;
+    font-family: ${({ theme }) => theme.font.family.button};
+
+  background: ${({ theme }) =>
+    theme.gradients.gradientPrimary || theme.colors.primary};
+
+  color: ${({ theme }) => theme.colors.white};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: ${({ theme }) => theme.font.weight.bold};
+  font-size: 0.85rem;
+  z-index: 1;
+
+  box-shadow:
+    0 12px 28px rgba(0,0,0,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.22),
+    0 0 0 4px ${({ theme }) => theme.colors.background};
+
+  ${({ theme }) => theme.mq.md} {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  @media (max-width: 360px) {
+    width: 2.15rem;
+    height: 2.15rem;
+    font-size: 0.8rem;
+    box-shadow:
+      0 10px 22px rgba(0,0,0,0.20),
+      inset 0 1px 0 rgba(255,255,255,0.20),
+      0 0 0 3px ${({ theme }) => theme.colors.background};
+  }
+`;
+
+const StepCard = styled.div<{ $even: boolean }>`
+  position: relative;
+  width: 100%;
+  border-radius: ${({ theme }) => theme.radii.xl};
+
+  padding: 1.1rem 1.1rem 1.05rem;
+
+  /* modern glass */
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
+  border: 1px solid rgba(255,255,255,0.14);
+
+  box-shadow:
+    0 18px 44px rgba(0,0,0,0.16),
+    inset 0 1px 0 rgba(255,255,255,0.10);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+
+  /* shine */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(
+      520px 220px at 18% 0%,
+      rgba(255,255,255,0.16),
+      transparent 58%
+    );
+    opacity: 0.9;
+  }
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255,255,255,0.22);
+    box-shadow:
+      0 26px 64px rgba(0,0,0,0.22),
+      inset 0 1px 0 rgba(255,255,255,0.14);
+  }
+
+  @media (hover: none) {
+    &:hover {
+      transform: none;
+    }
+  }
+
+  ${({ theme }) => theme.mq.md} {
+    width: 44%;
+    padding: 1.35rem 1.4rem;
+    margin-${({ $even }) => ($even ? "right" : "left")}: 6%;
+  }
+
+  @media (max-width: 360px) {
+    border-radius: 16px;
+    padding: 1rem;
+  }
+`;
+
+const StepLabel = styled.span`
+  display: inline-flex;
+  align-items: center;
+      font-family: ${({ theme }) => theme.font.family.button};
+
+
+  font-size: 0.72rem;
+  font-weight: ${({ theme }) => theme.font.weight.bold};
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+
+  color: ${({ theme }) => theme.colors.white};
+
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.18);
+
+  box-shadow:
+    0 10px 22px rgba(0,0,0,0.14),
+    inset 0 1px 0 rgba(255,255,255,0.12);
+
+  margin-bottom: 0.6rem;
+
+  @media (max-width: 360px) {
+    font-size: 0.68rem;
+    padding: 0.32rem 0.55rem;
+  }
+`;
+
+const StepTitle = styled.h3`
+  margin: 0 0 0.55rem;
+  color: ${({ theme }) => theme.colors.text};
+  font-weight: ${({ theme }) => theme.font.weight.semibold};
+  letter-spacing: -0.01em;
+  line-height: 1.15;  font-family: ${({ theme }) => theme.font.family.heading};
+
+
+  font-size: clamp(1rem, 2.8vw, ${({ theme }) => theme.font.size.lg});
+
+  @media (max-width: 360px) {
+    margin-bottom: 0.45rem;
+  }
+`;
+
+const StepDesc = styled.p`
+  margin: 0;
+  color: ${({ theme }) => theme.colors.textMuted};
+  line-height: 1.65;
+
+  font-size: clamp(0.88rem, 2.6vw, 1rem);
+
+  @media (max-width: 360px) {
+    line-height: 1.6;
+  }
+`;
+/* ───────── footer ───────── */
+
+const Footer = styled.div`
+  text-align: center;
+  margin-top: 2rem;
+`;
+
+/* ───────── guard ───────── */
+
+function isHowToPlayData(v: unknown): v is HowToPlayData {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return false;
+  const obj = v as any;
+  return (
+    typeof obj.title === "string" &&
+    Array.isArray(obj.steps) &&
+    obj.steps.every(
+      (s: any) =>
+        s && typeof s.title === "string" && typeof s.description === "string"
+    )
+  );
+}
+
+/* ───────── component ───────── */
+
+const HowToPlay = ({ page, sectionKey = "howToPlay" }: HowToPlayProps) => {
+  const { t } = useTranslation("common");
+  const raw = t(`sections.${sectionKey}.${page}`, { returnObjects: true });
+
+  if (!isHowToPlayData(raw)) return null;
+
+  const handleClick = () => {
+    if (siteSettings.referralLink) {
+      window.open(siteSettings.referralLink, "_blank", "noopener,noreferrer");
+    }
+  };
+
+  return (
+    <Section>
+      <Container>
+        <Header>
+          <Title>{raw.title}</Title>
+          {raw.subtitle && <Subtitle>{raw.subtitle}</Subtitle>}
+        </Header>
+
+        <Timeline>
+          {raw.steps.map((item, idx) => {
+            const even = idx % 2 === 0;
+            return (
+              <StepRow key={idx} $even={even}>
+                <StepNumber>{item.step || String(idx + 1)}</StepNumber>
+                <StepCard $even={even}>
+                  <StepLabel>Step {item.step || idx + 1}</StepLabel>
+                  <StepTitle>{item.title}</StepTitle>
+                  <StepDesc>{item.description}</StepDesc>
+                </StepCard>
+              </StepRow>
+            );
+          })}
+        </Timeline>
+
+        {raw.buttonText && (
+          <Footer>
+            <Button $variant="primary" size="large" href={siteSettings.referralLink || "#"} target="_blank" rel="noopener noreferrer">
+              {raw.buttonText}
+            </Button>
+          </Footer>
+        )}
+      </Container>
+    </Section>
+  );
+};
+
+export default HowToPlay;

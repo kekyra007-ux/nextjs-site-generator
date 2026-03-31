@@ -1,0 +1,361 @@
+// src/components/Sections/FaqBlock/FaqBlock.tsx
+import styled from "styled-components";
+import { useTranslation } from "next-i18next";
+
+interface FaqBlockProps {
+  page: string;
+  sectionKey?: string; // default: "faqBlock"
+}
+
+type FaqItem = { q: string; a: string };
+
+type FaqData = {
+  title: string;
+  items: FaqItem[];
+};
+
+const Section = styled.section`
+  position: relative;
+  padding: clamp(2.75rem, 5vw, 4.25rem) 1rem;
+  background: ${({ theme }) => theme.colors.background};
+  overflow: hidden;
+
+  /* мягкий атмосферный слой */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -40px -40px auto -40px;
+    height: 360px;
+    background:
+      radial-gradient(
+        600px 260px at 20% 10%,
+        rgba(255, 255, 255, 0.1),
+        transparent 60%
+      ),
+      radial-gradient(
+        520px 240px at 85% 35%,
+        rgba(255, 255, 255, 0.07),
+        transparent 62%
+      );
+    pointer-events: none;
+    opacity: 0.75;
+    filter: blur(8px);
+  }
+
+  /* легкая зернистость */
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+  }
+
+  @media (max-width: 360px) {
+    padding: 2.5rem 0.85rem;
+  }
+  @media (max-width: 320px) {
+    padding: 2.35rem 0.7rem;
+  }
+`;
+
+const Container = styled.div`
+  max-width: ${({ theme }) => theme.container.maxWidth};
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+`;
+
+const Title = styled.h2`
+  margin: 0 0 1.15rem;
+  color: ${({ theme }) => theme.colors.text};
+  font-size: clamp(1.55rem, 2.6vw, ${({ theme }) => theme.font.size["2xl"]});
+  font-weight: ${({ theme }) => theme.font.weight.bold};
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.16);
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.1));
+
+  @media (max-width: 360px) {
+    margin-bottom: 1rem;
+  }
+`;
+
+const List = styled.div`
+  display: grid;
+  gap: 0.85rem;
+
+  @media (max-width: 360px) {
+    gap: 0.7rem;
+  }
+`;
+
+const Item = styled.details`
+  position: relative;
+  border-radius: ${({ theme }) => theme.radii.xl};
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      900px 260px at 15% 0%,
+      ${({ theme }) => theme.colors.primary}22,
+      transparent 55%
+    ),
+    radial-gradient(
+      760px 240px at 90% 35%,
+      ${({ theme }) => theme.colors.secondary}1A,
+      transparent 60%
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.06));
+
+  /* кант тоже “тематический” */
+  border: 1px solid ${({ theme }) => theme.colors.primary}2A;
+
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.16),
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 0 26px ${({ theme }) => theme.colors.primary}14,
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+
+  /* тонкий shine */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    background: radial-gradient(
+      520px 240px at 18% 0%,
+      rgba(255, 255, 255, 0.16),
+      transparent 58%
+    );
+    opacity: 0.9;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    border: 2px solid ${({ theme }) => theme.colors.primary};
+    opacity: 0.55;
+    mix-blend-mode: overlay;
+  }
+
+  &[open] {
+    border-color: ${({ theme }) => theme.colors.secondary}40;
+    background:
+      radial-gradient(
+        900px 300px at 15% 0%,
+        ${({ theme }) => theme.colors.primary}30,
+        transparent 55%
+      ),
+      radial-gradient(
+        760px 260px at 90% 35%,
+        ${({ theme }) => theme.colors.secondary}24,
+        transparent 60%
+      ),
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.12),
+        rgba(255, 255, 255, 0.07)
+      );
+
+    box-shadow:
+      0 26px 62px rgba(0, 0, 0, 0.22),
+      0 0 34px ${({ theme }) => theme.colors.primary}20,
+      0 0 22px ${({ theme }) => theme.colors.secondary}16,
+      inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: ${({ theme }) => theme.colors.primary}3D;
+    box-shadow:
+      0 24px 58px rgba(0, 0, 0, 0.2),
+      0 0 32px ${({ theme }) => theme.colors.primary}1C,
+      inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  }
+
+  @media (hover: none) {
+    &:hover {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 360px) {
+    border-radius: 16px;
+  }
+`;
+
+const Question = styled.summary`
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.85rem;
+
+  padding: 1rem 1.05rem;
+
+  color: ${({ theme }) => theme.colors.text};
+  font-weight: 900;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.22);
+  }
+
+  @media (max-width: 360px) {
+    padding: 0.9rem 0.95rem;
+    font-size: 0.98rem;
+    gap: 0.7rem;
+  }
+
+  @media (max-width: 320px) {
+    padding: 0.85rem 0.9rem;
+    font-size: 0.96rem;
+  }
+`;
+
+/* стрелка — отдельный элемент (без svg, работает всегда) */
+const Chevron = styled.span`
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  background: ${({ theme }) => theme.colors.primary};
+  border: 1px solid rgba(255, 255, 255, 0.16);
+
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+
+  position: relative;
+
+  &::before {
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-right: 2px solid rgba(255, 255, 255, 0.92);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.92);
+    transform: rotate(45deg);
+    transition: transform 180ms ease;
+    margin-top: -2px;
+  }
+
+  details[open] &::before {
+    transform: rotate(-135deg);
+    margin-top: 2px;
+  }
+
+  @media (max-width: 360px) {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+  }
+
+  @media (max-width: 320px) {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+`;
+
+const AnswerWrap = styled.div`
+  padding: 0 1.05rem 1.05rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+  @media (max-width: 360px) {
+    padding: 0 0.95rem 0.95rem;
+  }
+  @media (max-width: 320px) {
+    padding: 0 0.9rem 0.9rem;
+  }
+`;
+
+const Answer = styled.p`
+  margin: 0.8rem 0 0;
+  color: ${({ theme }) => theme.colors.textMuted};
+  line-height: 1.65;
+  font-size: 0.98rem;
+
+  overflow-wrap: anywhere;
+
+  @media (max-width: 360px) {
+    margin-top: 0.7rem;
+    font-size: 0.96rem;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 320px) {
+    font-size: 0.94rem;
+  }
+`;
+
+function isFaqData(v: unknown): v is FaqData {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return false;
+  const obj = v as any;
+  return (
+    typeof obj.title === "string" &&
+    Array.isArray(obj.items) &&
+    obj.items.every(
+      (it: any) => it && typeof it.q === "string" && typeof it.a === "string",
+    )
+  );
+}
+
+const FaqBlock = ({ page, sectionKey = "faqBlock" }: FaqBlockProps) => {
+  const { t } = useTranslation("common");
+
+  const raw = t(`sections.${sectionKey}.${page}`, { returnObjects: true });
+  if (!isFaqData(raw)) return null;
+
+  return (
+    <Section>
+      <Container>
+        <Title>{raw.title}</Title>
+        <List>
+          {raw.items.map((it, idx) => (
+            <Item key={idx}>
+              <Question>
+                <span>{it.q}</span>
+                <Chevron aria-hidden="true" />
+              </Question>
+              <AnswerWrap>
+                <Answer>{it.a}</Answer>
+              </AnswerWrap>
+            </Item>
+          ))}
+        </List>
+      </Container>
+    </Section>
+  );
+};
+
+export default FaqBlock;

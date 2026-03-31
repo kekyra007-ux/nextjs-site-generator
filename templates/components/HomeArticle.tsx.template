@@ -1,0 +1,376 @@
+// src/components/Sections/HomeArticle/HomeArticle.tsx
+import styled from "styled-components";
+import { useTranslation } from "next-i18next";
+import Button from "../../UI/Button";
+import siteSettings from "../../../config/siteSettings.json";
+interface HomeArticleProps {
+  page: string;
+  sectionKey?: string; // default: "homeArticle"
+}
+
+type HomeArticleData = {
+  title: string;
+  subtitle?: string;
+  p1: string;
+  p2?: string;
+  list?: string[];
+  p3?: string;
+
+  buttonText?: string;
+};
+
+const Section = styled.section`
+  padding: 3.5rem 1rem;
+  background: ${({ theme }) => theme.colors.background};
+`;
+
+const Container = styled.div`
+  max-width: ${({ theme }) => theme.container.maxWidth};
+  margin: 0 auto;
+  position: relative;
+`;
+
+const Box = styled.div`
+  position: relative;
+  overflow: hidden;
+
+  border-radius: ${({ theme }) => theme.radii["2xl"]};
+  padding: clamp(1.05rem, 3.2vw, 2.25rem);
+
+  /* базовая панель (привязка к теме) */
+  background:
+    radial-gradient(
+      680px 260px at 18% 0%,
+      ${({ theme }) => theme.colors.primary}22,
+      transparent 58%
+    ),
+    radial-gradient(
+      540px 240px at 85% 24%,
+      ${({ theme }) => theme.colors.secondary}1C,
+      transparent 62%
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.06));
+
+  border: 1px solid rgba(255, 255, 255, 0.14);
+
+  box-shadow:
+    0 22px 66px rgba(0, 0, 0, 0.22),
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  /* “акцентная дуга” сверху — яркость казино, но без колхоза */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    pointer-events: none;
+    border-radius: inherit;
+    background:
+      radial-gradient(
+        900px 320px at 12% 0%,
+        ${({ theme }) => theme.colors.primary}33,
+        transparent 62%
+      ),
+      radial-gradient(
+        700px 260px at 92% 0%,
+        ${({ theme }) => theme.colors.secondary}2B,
+        transparent 64%
+      );
+    opacity: 0.9;
+    filter: blur(2px);
+  }
+
+  /* тонкая “рамка” с акцентом */
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+
+    background: linear-gradient(
+      135deg,
+      ${({ theme }) => theme.colors.primary}55,
+      transparent 45%,
+      ${({ theme }) => theme.colors.secondary}55
+    );
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+
+    padding: 1px; /* толщина рамки */
+    opacity: 0.45;
+  }
+
+  @media (max-width: 360px) {
+    border-radius: 18px;
+    padding: 0.95rem 0.9rem;
+  }
+
+  @media (max-width: 320px) {
+    padding: 0.9rem 0.85rem;
+  }
+`;
+
+const Title = styled.h2`
+  margin: 0 0 0.85rem;
+  color: ${({ theme }) => theme.colors.text};
+  font-family: ${({ theme }) => theme.font.family.heading};
+
+  font-size: clamp(1.65rem, 3.6vw, ${({ theme }) => theme.font.size["3xl"]});
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+
+  /* лёгкая “выпуклость” заголовка */
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.28),
+    0 14px 32px rgba(0, 0, 0, 0.18);
+
+  filter: saturate(1.05) contrast(1.02);
+
+  @media (max-width: 360px) {
+    margin-bottom: 0.75rem;
+    line-height: 1.05;
+  }
+`;
+
+const Subtitle = styled.p`
+  margin: 0 0 1.25rem;
+  color: ${({ theme }) => theme.colors.textMuted};
+
+  font-size: clamp(0.98rem, 2.2vw, ${({ theme }) => theme.font.size.lg});
+  line-height: 1.65;
+  opacity: 0.95;
+
+  max-width: 62ch;
+
+  text-wrap: pretty;
+  overflow-wrap: anywhere;
+
+  @media (max-width: 360px) {
+    margin-bottom: 1.05rem;
+    max-width: 100%;
+  }
+`;
+
+const P = styled.p`
+  margin: 0 0 1rem;
+  color: ${({ theme }) => theme.colors.textMuted};
+  line-height: 1.78;
+  font-size: clamp(0.98rem, 1.9vw, 1.05rem);
+  opacity: 0.96;
+
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+
+  @media (max-width: 360px) {
+    line-height: 1.72;
+    margin-bottom: 0.9rem;
+  }
+`;
+
+const List = styled.ul`
+  margin: 0 0 1rem;
+  padding: 0; /* убираем стандартные отступы списка */
+  list-style: none;
+
+  display: grid;
+  gap: 0.65rem;
+
+  li {
+    position: relative;
+    margin: 0;
+
+    padding: 0.9rem 0.95rem 0.9rem 1.2rem;
+    border-radius: 16px;
+
+    color: ${({ theme }) => theme.colors.textMuted};
+    line-height: 1.65;
+
+    /* “плашка” под тему */
+    background:
+      radial-gradient(
+        520px 200px at 12% 0%,
+        ${({ theme }) => theme.colors.primary}22,
+        transparent 62%
+      ),
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0.06)
+      );
+
+    border: 1px solid rgba(255, 255, 255, 0.14);
+
+    box-shadow:
+      0 16px 42px rgba(0, 0, 0, 0.16),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    transition:
+      transform 160ms ease,
+      border-color 160ms ease,
+      background 160ms ease,
+      box-shadow 160ms ease;
+
+    /* тонкая акцентная полоска слева */
+    &::before {
+      content: "";
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      bottom: 10px;
+      width: 4px;
+      border-radius: 999px;
+      background: linear-gradient(
+        180deg,
+        ${({ theme }) => theme.colors.primary},
+        ${({ theme }) => theme.colors.secondary}
+      );
+      opacity: 0.9;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.2);
+      background:
+        radial-gradient(
+          520px 220px at 12% 0%,
+          ${({ theme }) => theme.colors.primary}2B,
+          transparent 62%
+        ),
+        linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.12),
+          rgba(255, 255, 255, 0.07)
+        );
+      box-shadow:
+        0 22px 58px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    }
+
+    @media (hover: none) {
+      &:hover {
+        transform: none;
+      }
+    }
+  }
+
+  @media (max-width: 360px) {
+    gap: 0.55rem;
+
+    li {
+      padding: 0.85rem 0.85rem 0.85rem 1rem;
+      border-radius: 14px;
+
+      &::before {
+        left: 9px;
+        top: 9px;
+        bottom: 9px;
+      }
+
+      &::after {
+        left: 17px;
+        width: 11px;
+        height: 11px;
+      }
+    }
+  }
+
+  @media (max-width: 320px) {
+    li {
+      padding: 0.8rem 0.8rem 0.8rem 1rem;
+    }
+  }
+`;
+const Actions = styled.div`
+  margin-top: 1.25rem;
+  display: flex;
+  justify-content: flex-start;
+
+  @media (max-width: 480px) {
+    justify-content: stretch;
+
+    a {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+`;
+function isHomeArticleData(v: unknown): v is HomeArticleData {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return false;
+  const o = v as any;
+
+  // базовые обязательные поля
+  if (typeof o.title !== "string" || typeof o.p1 !== "string") return false;
+
+  // опциональные поля (если есть — должны быть правильного типа)
+  if (o.subtitle != null && typeof o.subtitle !== "string") return false;
+  if (o.p2 != null && typeof o.p2 !== "string") return false;
+  if (o.p3 != null && typeof o.p3 !== "string") return false;
+
+  if (o.list != null) {
+    if (!Array.isArray(o.list)) return false;
+    if (!o.list.every((x: any) => typeof x === "string")) return false;
+  }
+
+  if (o.buttonText != null && typeof o.buttonText !== "string") return false;
+
+  return true;
+}
+
+const HomeArticle = ({
+  page,
+  sectionKey = "homeArticle",
+}: HomeArticleProps) => {
+  const { t } = useTranslation("common");
+  const raw = t(`sections.${sectionKey}.${page}`, { returnObjects: true });
+  if (!isHomeArticleData(raw)) return null;
+
+  return (
+    <Section>
+      <Container>
+        <Box>
+          <Title>{raw.title}</Title>
+          {raw.subtitle ? <Subtitle>{raw.subtitle}</Subtitle> : null}
+          <P>{raw.p1}</P>
+          {raw.p2 ? <P>{raw.p2}</P> : null}
+          {Array.isArray(raw.list) && raw.list.length ? (
+            <List>
+              {raw.list.map((it, idx) => (
+                <li key={idx}>{it}</li>
+              ))}
+            </List>
+          ) : null}
+          {raw.p3 ? <P>{raw.p3}</P> : null}
+          <Actions>
+            <Button
+              $variant="primary"
+              size="large"
+              href={siteSettings.referralLink || "#"}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {raw.buttonText || "Play Now"}
+            </Button>
+          </Actions>{" "}
+        </Box>
+      </Container>
+    </Section>
+  );
+};
+
+export default HomeArticle;

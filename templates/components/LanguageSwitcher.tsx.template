@@ -1,0 +1,37 @@
+// src/components/LanguageSwitcher/LanguageSwitcher.tsx
+import styled from "styled-components";
+import { useRouter } from "next/router";
+import Link from "../Link/Link";
+import Button from "../UI/Button";
+
+const SwitcherWrapper = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: center;
+`;
+
+interface LanguageSwitcherProps {
+  locales: string[];
+}
+
+export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ locales }) => {
+  const router = useRouter();
+  const currentLocale = router.query.locale;
+
+  return (
+    <SwitcherWrapper>
+      {locales.map((locale) => (
+        <Link key={locale} href="/" locale={locale}>
+          <Button
+            $variant={currentLocale === locale ? "primary" : "secondary"}
+            size="small"
+          >
+            {locale.toUpperCase()}
+          </Button>
+        </Link>
+      ))}
+    </SwitcherWrapper>
+  );
+};
+
+export default LanguageSwitcher;

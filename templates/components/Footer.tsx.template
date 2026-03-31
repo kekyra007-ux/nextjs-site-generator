@@ -1,0 +1,10 @@
+export const Footer = () => {
+  return (
+    <footer style={{ padding: "2rem", background: "#0f0f1e", color: "#fff", textAlign: "center" }}>
+      <p>&copy; {{year}} {{brandName}}. All rights reserved.</p>
+      <p>{{geoCountry}}</p>
+    </footer>
+  );
+};
+
+export default Footer;

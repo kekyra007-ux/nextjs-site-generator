@@ -1,0 +1,62 @@
+{
+  "philippines": {
+    "name": "Philippines",
+    "code": "PH",
+    "defaultLocale": "tl",
+    "locales": ["en", "tl"],
+    "localeNames": {
+      "en": "English",
+      "tl": "Filipino"
+    },
+    "coordinates": {
+      "latitude": 14.5995,
+      "longitude": 121.0895
+    },
+    "ogLocales": {
+      "en": "en_PH",
+      "tl": "tl_PH"
+    },
+    "currency": "PHP",
+    "timezone": "Asia/Manila"
+  },
+  "bangladesh": {
+    "name": "Bangladesh",
+    "code": "BD",
+    "defaultLocale": "bn",
+    "locales": ["en", "bn"],
+    "localeNames": {
+      "en": "English",
+      "bn": "Bengali"
+    },
+    "coordinates": {
+      "latitude": 23.8103,
+      "longitude": 90.4125
+    },
+    "ogLocales": {
+      "en": "en_BD",
+      "bn": "bn_BD"
+    },
+    "currency": "BDT",
+    "timezone": "Asia/Dhaka"
+  },
+  "vietnam": {
+    "name": "Vietnam",
+    "code": "VN",
+    "defaultLocale": "vi",
+    "locales": ["en", "vi"],
+    "localeNames": {
+      "en": "English",
+      "vi": "Vietnamese"
+    },
+    "coordinates": {
+      "latitude": 21.0285,
+      "longitude": 105.8542
+    },
+    "ogLocales": {
+      "en": "en_VN",
+      "vi": "vi_VN"
+    },
+    "currency": "VND",
+    "timezone": "Asia/Ho_Chi_Minh"
+  }
+}
